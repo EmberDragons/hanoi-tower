@@ -1,0 +1,14 @@
+This is a hanoi tower simulation made with python and tkinter.
+What is it?
+ - hanoi tower solver and simulation
+ - up to 6 rings
+ - you can move them by hand
+ - see them move in the most optimised way
+How it works?
+The algorithme behind the towers' movement is generated thanks to recursivity. Basically:
+1. is a recursivity to telling the smaller rings where not to go
+2. then we move the n - ring (the one we are at)
+3. second recursivity so that the rings can go back to the n - ring
+Also the code for this algorithm is in moveset.py
+
+Hope you like it!
