@@ -1,126 +1,125 @@
-class Maillon:
-    """Classe de maillon pour les file et pile : avec v la valeur sauvegardée"""
+class Node:
+    """Node class for stacks and queues: with v the saved value"""
     def __init__(self, v=None, s=None):
-        """Constructeur de la classe qui s'occupe de stoquer les valeurs"""
-        self.valeur = v
-        self.suivant = s
-    def __str__(self):
-        """Fonction qui permet l'affichage des lists"""
-        if self.suivant == None:
-            return f"{self.valeur}"
-        else:
-            return f"{self.valeur} - {self.suivant}"
-        
-class Pile:
-    """Classe d'une pile"""
-    def __init__(self):
-        """Constructeur de la classe Pile"""
-        #constructeur de la classe
-        self.premier = None
+        """Constructor of the class that stores the values"""
+        self.value = v
+        self.next = s
 
-    def ajouter(self,v):
-        """Fonction qui ajoute un maillon avec la nouvelle valeur à la liste"""
-        m = Maillon(v)
-        n = self.premier
-        self.premier=m
-        self.premier.suivant = n
+    def __str__(self):
+        """Function that allows displaying lists"""
+        if self.next == None:
+            return f"{self.value}"
+        else:
+            return f"{self.value} - {self.next}"
+        
+class Stack:
+    """Stack class"""
+    def __init__(self):
+        """Constructor of the Stack class"""
+        # constructor of the class
+        self.first = None
+
+    def add(self, v):
+        """Function that adds a node with the new value to the stack"""
+        m = Node(v)
+        n = self.first
+        self.first = m
+        self.first.next = n
     
-    def enlever(self):
-        """Fonction qui enlève l'élément tout en haut"""
-        if self.premier != None:
-            v=self.premier.valeur
-            self.premier = self.premier.suivant
+    def remove(self):
+        """Function that removes the topmost element"""
+        if self.first != None:
+            v = self.first.value
+            self.first = self.first.next
             return v
         else:
             return None
 
-    def taille(self):
-        """Fonction qui renvoie la taille de la liste"""
-        n=0
-        if self.premier != None:
-            precedent=self.premier
-            n=n+1
-            while precedent.suivant!=None:
-                n=n+1
-                precedent=precedent.suivant
+    def size(self):
+        """Function that returns the size of the stack"""
+        n = 0
+        if self.first != None:
+            current = self.first
+            n = n + 1
+            while current.next != None:
+                n = n + 1
+                current = current.next
         return n
     
-    def contient(self, valeur):
-        """Fonction qui vérifie si une valeur est présente dans la Pile"""
-        ans=False
-        if self.premier != None:
-            precedent=self.premier
+    def contains(self, value):
+        """Function that checks if a value is present in the stack"""
+        result = False
+        if self.first != None:
+            current = self.first
             
-            if self.premier == valeur:
-                ans=True
-            while precedent.suivant!=None:
-                precedent=precedent.suivant
-                if precedent.valeur == valeur:
-                    ans=True
+            if self.first == value:
+                result = True
+            while current.next != None:
+                current = current.next
+                if current.value == value:
+                    result = True
             
-            
-        return ans
+        return result
 
-    
     def __str__(self):
-        return f"{self.premier}"
+        return f"{self.first}"
 
-class File:
-    """Classe d'une file"""
+class Queue:
+    """Queue class"""
     def __init__(self):
-        """Constructeur de la classe File"""
-        #constructeur de la classe
-        self.premier = None
+        """Constructor of the Queue class"""
+        # constructor of the class
+        self.first = None
 
-    def ajouter(self,v):
-        """Fonction qui ajoute un maillon avec la nouvelle valeur à la liste"""
-        m = Maillon(v)
-        if self.premier == None:
-            self.premier=m
+    def add(self, v):
+        """Function that adds a node with the new value to the queue"""
+        m = Node(v)
+        if self.first == None:
+            self.first = m
         else:
-            precedent=self.premier
-            while precedent.suivant!=None:
-                precedent=precedent.suivant
-            precedent.suivant = m
+            current = self.first
+            while current.next != None:
+                current = current.next
+            current.next = m
     
-    def enlever(self):
-        """Fonction qui enlève le premier élément"""
-        if self.premier != None:
-            v = self.premier.valeur
-            self.premier = self.premier.suivant
+    def remove(self):
+        """Function that removes the first element"""
+        if self.first != None:
+            v = self.first.value
+            self.first = self.first.next
             return v
     
-    def verifie(self):
-        """Fonction qui renvoie la barre du premier élément"""
-        if self.premier != None:
-            v = self.premier.valeur
+    def check(self):
+        """Function that returns the first element's "bar"""
+        if self.first != None:
+            v = self.first.value
             return v[0]
     
     def copy(self):
-        """Fonction qui permet la copie d'une File entière"""
-        list_elts = []
-        precedent=None
-        if self.premier != None:
-            precedent=self.premier
-            list_elts.append(precedent.valeur)
-            while precedent.suivant!=None:
-                list_elts.append(precedent.suivant.valeur)
-                precedent=precedent.suivant
-        new_File = File()
-        for elt in list_elts:
-            new_File.ajouter(elt)
-        return new_File
+        """Function that allows copying an entire queue"""
+        elements = []
+        current = None
+        if self.first != None:
+            current = self.first
+            elements.append(current.value)
+            while current.next != None:
+                elements.append(current.next.value)
+                current = current.next
+        new_queue = Queue()
+        for elt in elements:
+            new_queue.add(elt)
+        return new_queue
     
-    def taille(self):
-        """Fonction qui renvoie la taille de la liste"""
-        n=0
-        if self.premier != None:
-            precedent=self.premier
-            n=n+1
-            while precedent.suivant!=None:
-                n=n+1
-                precedent=precedent.suivant
+    def size(self):
+        """Function that returns the size of the queue"""
+        n = 0
+        if self.first != None:
+            current = self.first
+            n = n + 1
+            while current.next != None:
+                n = n + 1
+                current = current.next
         return n
 
     def __str__(self):
-        return f"{self.premier}"
+        return f"{self.first}"

@@ -3,278 +3,286 @@ from lists import *
 from move_set import *
 from check_pos import *
 #--------------------------------------------------------------CLASSES----------------------------------------------------------------------------
-class Barre:
+
+class Bar:
     def __init__(self, nb):
-        """Constructeur de la classe qui corespond à une barre"""
-        self.nombre = nb
-        self.list = Pile()
-        self.pos = [0,0]
-        self.creation_barres()
+        """Constructor for the class that represents a bar"""
+        self.number = nb
+        self.list = Stack()
+        self.pos = [0, 0]
+        self.create_bars()
 
-    def creation_barres(self):
-        """Fonction qui s'occupe de la creation de la partie visuelle des barres"""
-        col_barre = "black"
-        #position en x
-        depart_x = largeur//6 
-        un_tier_fenetre=largeur//3
-        eppaisseur = 10
-        self.pos[0] = depart_x+(self.nombre-1)*un_tier_fenetre+eppaisseur//2
-        #position en y
-        depart_y = 50
-        hauteur_barre = 300
-        self.pos[1] = depart_y+hauteur_barre
-        #creation des rectangles
-        toile.create_rectangle(depart_x+(self.nombre-1)*un_tier_fenetre-eppaisseur//2, depart_y,depart_x+(self.nombre-1)*un_tier_fenetre+eppaisseur//2, depart_y+hauteur_barre, fill=col_barre)
+    def create_bars(self):
+        """Function that handles the visual creation of the bars"""
+        bar_color = "black"
+        # x position
+        start_x = width // 6
+        one_third_window = width // 3
+        thickness = 10
+        self.pos[0] = start_x + (self.number - 1) * one_third_window + thickness // 2
+        # y position
+        start_y = 50
+        bar_height = 300
+        self.pos[1] = start_y + bar_height
+        # creating rectangles
+        canvas.create_rectangle(start_x + (self.number - 1) * one_third_window - thickness // 2, start_y,
+                                 start_x + (self.number - 1) * one_third_window + thickness // 2,
+                                 start_y + bar_height, fill=bar_color)
 
 
-class Anneau:
+class Ring:
     def __init__(self, nb):
-        """Constructeur de la classe qui correspond à un anneau"""
-        self.nombre=nb
-        self.barre_id = 0
-        
+        """Constructor for the class that represents a ring"""
+        self.number = nb
+        self.bar_id = 0
+
         self.body = None
-        self.pos = [0,0]
-        self.origin_pos = [0,0]
-        self.taille = [0,0]
-        self.creation_anneau()
+        self.pos = [0, 0]
+        self.origin_pos = [0, 0]
+        self.size = [0, 0]
+        self.create_ring()
 
-        self.bouge = False
+        self.moves = False
         self.func = None
-        #ajoute l'anneau a la pile de depart:
-        liste_barres[self.barre_id].list.ajouter(self)
+        # add the ring to the initial pile:
+        bar_list[self.bar_id].list.add(self)
 
-    def creation_anneau(self):
-        """Fonction qui créée un anneau de manière visuelle"""
-        bas_barre = 220+(6-nb_anneaux)*20
-        list_col=["red","blue","green","purple","yellow","brown"]
+    def create_ring(self):
+        """Function that visually creates a ring"""
+        base_bar = 220 + (6 - num_rings) * 20
+        color_list = ["red", "blue", "green", "purple", "yellow", "brown"]
 
-        col_ann = list_col[self.nombre-1]
-        #position et taille en x
-        self.pos[0] = largeur//6
-        self.taille[0] = self.nombre*10
-        #position et taille en y
-        self.pos[1] = bas_barre+self.nombre*20
-        self.taille[1] = 10
+        ring_color = color_list[self.number - 1]
+        # x position and size
+        self.pos[0] = width // 6
+        self.size[0] = self.number * 10
+        # y position and size
+        self.pos[1] = base_bar + self.number * 20
+        self.size[1] = 10
         self.origin_pos = self.pos
-        self.body = toile.create_rectangle(self.pos[0]-self.taille[0],self.pos[1]-self.taille[1],self.pos[0]+self.taille[0],self.pos[1]+self.taille[1], fill=col_ann)
+        self.body = canvas.create_rectangle(self.pos[0] - self.size[0], self.pos[1] - self.size[1],
+                                            self.pos[0] + self.size[0], self.pos[1] + self.size[1], fill=ring_color)
 
-    def movement_anneau(self,direction, arrive, barre_id):
-        """Fonction qui permet de deplacer l'anneau dans la barre"""
-        if barre_id != self.barre_id: #on verifie qu'il a deja ete ajouté a la liste
-            liste_barres[self.barre_id].list.enlever() #toujours celui tout en haut
-            self.barre_id=barre_id
-            liste_barres[self.barre_id].list.ajouter(self)
+    def move_ring(self, direction, arrive, bar_id):
+        """Function to move the ring along the bar"""
+        if bar_id != self.bar_id:  # check if it has already been added to the list
+            bar_list[self.bar_id].list.remove()  # always the top one
+            self.bar_id = bar_id
+            bar_list[self.bar_id].list.add(self)
 
-        #nouvelle direction
+        # new direction
         x = direction[0]
         y = direction[1]
-        self.pos = [self.pos[0]+x,self.pos[1]+y]
-        toile.move(self.body,x,y)
-        self.func = toile.after(17, self.movement_anneau, direction, arrive,self.barre_id)
-        #on est arrivé
-        if abs(arrive[0]-self.pos[0]) < 2 and abs(arrive[1]-self.pos[1]) < 1:
-            toile.after_cancel(self.func)
-            self.bouge=False
+        self.pos = [self.pos[0] + x, self.pos[1] + y]
+        canvas.move(self.body, x, y)
+        self.func = canvas.after(17, self.move_ring, direction, arrive, self.bar_id)
+        # arrived
+        if abs(arrive[0] - self.pos[0]) < 2 and abs(arrive[1] - self.pos[1]) < 1:
+            canvas.after_cancel(self.func)
+            self.moves = False
 
-    def movement_haut_anneau(self, direction, arrive, barre_id, arrive_next_y):
-        """Fonction qui correspond au déplacement de l'anneau en haut de la barre"""
-        self.bouge=True
-        
-        #on le change de pile par rapport aux barres
-        if barre_id != self.barre_id: #on verifie qu'il a deja ete ajouté a la liste
-            liste_barres[self.barre_id].list.enlever() #toujours celui tout en haut
-            self.barre_id=barre_id
-            liste_barres[self.barre_id].list.ajouter(self)
+    def move_up_ring(self, direction, arrive, bar_id, arrive_next_y):
+        """Function that moves the ring up the bar"""
+        self.moves = True
+
+        # change pile according to the bars
+        if bar_id != self.bar_id:  # check if it has already been added to the list
+            bar_list[self.bar_id].list.remove()  # always the top one
+            self.bar_id = bar_id
+            bar_list[self.bar_id].list.add(self)
 
         x = direction[0]
         y = direction[1]
-        
-        self.pos = [self.pos[0]+x,self.pos[1]+y]
-        toile.move(self.body,x,y)
-        self.func = toile.after(17, self.movement_haut_anneau, direction, arrive,self.barre_id, arrive_next_y)
 
-        #on est arrivé a destination
-        if abs(arrive[0]-self.pos[0]) < 1 and abs(arrive[1]-self.pos[1]) < 1:
-            toile.after_cancel(self.func)
-            arrive_next = [arrive[0],arrive_next_y]
-            
-            #direction
-            n_x = (arrive_next[0]-self.pos[0])/50
-            n_y = (arrive_next[1]-self.pos[1])/50
-            dir_next = [n_x,n_y]
-            #deuxième partie du voyage
-            self.movement_anneau(dir_next,arrive_next, barre_id)
-        
+        self.pos = [self.pos[0] + x, self.pos[1] + y]
+        canvas.move(self.body, x, y)
+        self.func = canvas.after(17, self.move_up_ring, direction, arrive, self.bar_id, arrive_next_y)
+
+        # destination reached
+        if abs(arrive[0] - self.pos[0]) < 1 and abs(arrive[1] - self.pos[1]) < 1:
+            canvas.after_cancel(self.func)
+            arrive_next = [arrive[0], arrive_next_y]
+
+            # direction
+            n_x = (arrive_next[0] - self.pos[0]) / 50
+            n_y = (arrive_next[1] - self.pos[1]) / 50
+            dir_next = [n_x, n_y]
+            # second part of the journey
+            self.move_ring(dir_next, arrive_next, bar_id)
+
     def reset_pos(self):
-        """Fonction qui permet de reset la position et les variables des anneaux"""
-        self.bouge=False
-        self.pos=self.origin_pos
-        toile.coords(self.body,self.pos[0]-self.taille[0],self.pos[1]-self.taille[1],self.pos[0]+self.taille[0],self.pos[1]+self.taille[1])
-        liste_barres[self.barre_id].list.enlever() #toujours celui tout en haut
-        self.barre_id=0
+        """Function to reset the position and variables of the rings"""
+        self.moves = False
+        self.pos = self.origin_pos
+        canvas.coords(self.body, self.pos[0] - self.size[0], self.pos[1] - self.size[1],
+                      self.pos[0] + self.size[0], self.pos[1] + self.size[1])
+        bar_list[self.bar_id].list.remove()  # always the top one
+        self.bar_id = 0
         self.reset_move()
-        liste_barres[self.barre_id].list.ajouter(self)
-    
+        bar_list[self.bar_id].list.add(self)
+
     def reset_move(self):
-        """Fonction qui reset tout movement"""
-        if self.func != None:
-            toile.after_cancel(self.func)
-            self.func=None
+        """Function to reset all movements"""
+        if self.func is not None:
+            canvas.after_cancel(self.func)
+            self.func = None
 
 
+#-------------------------------------------------------------FUNCTIONS---------------------------------------------------------------------------
 
-#-------------------------------------------------------------FONCTIONS---------------------------------------------------------------------------
- # main code :
+# main code :
 def reset():
-    """Fonction qui permet de reset le code pour être pret à redémarer les déplacements"""
-    global deplacements
-    deplacements=deplacements_depart.copy()
-    for ann in liste_anneaux:
-        ann.reset_pos()
+    """Function that resets the code to prepare for restarting movements"""
+    global movements
+    movements = initial_movements.copy()
+    for ring in ring_list:
+        ring.reset_pos()
 
 def update():
-    """Fonction qui est appelé pour update la position des blocs"""
-    ann, barre = deplacements.premier.valeur
-    if deplacements.taille() >= 1 and liste_anneaux[deplacements.verifie()-1].bouge == False:
-        ann,barre=deplacements.enlever()
-        #on recupère les bons ids
-        ann-=1
-        barre-=1
+    """Function that is called to update the position of the blocks"""
+    ring, bar = movements.first.value
+    if movements.size() >= 1 and ring_list[movements.check() - 1].moves == False:
+        ring, bar = movements.remove()
+        # retrieve the correct ids
+        ring -= 1
+        bar -= 1
 
-        #determine l'endroit d'arrivée
-        pos=liste_barres[barre].pos
-        x_arrive = pos[0]-5
-        y_arrive = pos[1]-liste_barres[barre].list.taille()*20-10
-        
-        #direction
-        x = (x_arrive-liste_anneaux[ann].pos[0])/50
-        y = (haut_barre-liste_anneaux[ann].pos[1])/50
-        liste_anneaux[ann].movement_haut_anneau((x,y),(x_arrive,haut_barre),barre, y_arrive)
+        # determine the destination
+        pos = bar_list[bar].pos
+        x_arrive = pos[0] - 5
+        y_arrive = pos[1] - bar_list[bar].list.size() * 20 - 10
 
-def socle_visuel():
-    """Fonction qui créée un socle en bas de la fenètre"""
-    #en bas de la fenètre
-    col_barre = "black"
-    depart_x = largeur//6 
-    eppaisseur = 10
-    depart_y = 50
-    toile.create_rectangle(depart_x//2,hauteur-depart_y,largeur-depart_x//2,hauteur-depart_y+eppaisseur, fill=col_barre)
+        # direction
+        x = (x_arrive - ring_list[ring].pos[0]) / 50
+        y = (top_bar - ring_list[ring].pos[1]) / 50
+        ring_list[ring].move_up_ring((x, y), (x_arrive, top_bar), bar, y_arrive)
 
- # deplacements des anneaux :
-def select_anneau():
-    """Fonction qui selectionne l'anneau à partir du curseur"""
-    global selected_anneau
-    deja_choisi = False
-    for anneau in liste_anneaux:
-        pos = anneau.pos
-        taille = anneau.taille
-        #on regarde si la position de l'anneau correspond à celle du curseur
-        if verifie_pos(mouse_pos,pos,taille):
-            if selected_anneau != None:
-                unselect_anim(selected_anneau)
+def visual_base():
+    """Function to create a base at the bottom of the window"""
+    # at the bottom of the window
+    bar_color = "black"
+    start_x = width // 6
+    thickness = 10
+    start_y = 50
+    canvas.create_rectangle(start_x // 2, height - start_y, width - start_x // 2, height - start_y + thickness, fill=bar_color)
 
-            deja_choisi=True
-            selected_anneau = anneau
-            select_anim(selected_anneau)
-        #sinon on désélectionne l'anneau
-        elif deja_choisi == False:
-            if selected_anneau != None:
-                unselect_anim(selected_anneau)
-            selected_anneau = None
+# moving rings :
+def select_ring():
+    """Function that selects the ring based on the cursor"""
+    global selected_ring
+    already_selected = False
+    for ring in ring_list:
+        pos = ring.pos
+        size = ring.size
+        # check if the position of the ring matches the cursor's
+        if check_pos(mouse_pos, pos, size):
+            if selected_ring is not None:
+                unselect_anim(selected_ring)
 
-def movement_anneau():
-    global selected_anneau
-    un_tier_fenetre=largeur//3
-    barre=(mouse_pos[0]//un_tier_fenetre)
-    peux_deplacer = False
+            already_selected = True
+            selected_ring = ring
+            select_anim(selected_ring)
+        # otherwise, deselect the ring
+        elif not already_selected:
+            if selected_ring is not None:
+                unselect_anim(selected_ring)
+            selected_ring = None
 
-    #on ne peut que deplacer l'anneau si c'est celui en haut de la pile, que la barre ou il va n'est pas la meme que celle ou il se tient, qu'il ne bouge pas et que l'anneau sur la prochaine barre est plus grand que lui
-    if liste_anneaux[deplacements.verifie()-1].bouge == False and barre != selected_anneau.barre_id and liste_barres[selected_anneau.barre_id].list.premier.valeur.nombre == selected_anneau.nombre:
-        if liste_barres[barre].list.premier!=None:
-            if liste_barres[barre].list.premier.valeur.nombre>selected_anneau.nombre:
-                peux_deplacer=True
+def move_ring():
+    global selected_ring
+    one_third_window = width // 3
+    bar = (mouse_pos[0] // one_third_window)
+    can_move = False
+
+    # can only move the ring if it's the top one in the pile, the bar it is going to is not the same as where it is,
+    # it isn't already moving, and the ring on the next bar is larger than it
+    print(bar_list[bar].list)
+    if ring_list[movements.check() - 1].moves == False and bar != selected_ring.bar_id and \
+            bar_list[selected_ring.bar_id].list.first.value.number == selected_ring.number:
+        if bar_list[bar].list.first is not None:
+            if bar_list[bar].list.first.value.number > selected_ring.number:
+                can_move = True
         else:
-            peux_deplacer=True
+            can_move = True
 
-        if peux_deplacer:
-            #determine l'endroit d'arrivée
-            pos=liste_barres[barre].pos
-            x_arrive = pos[0]-5
-            y_arrive = pos[1]-liste_barres[barre].list.taille()*20-10
-            
-            #direction
-            x = (x_arrive-selected_anneau.pos[0])/50
-            y = (haut_barre-selected_anneau.pos[1])/50
-            selected_anneau.reset_move()
-            selected_anneau.movement_haut_anneau((x,y),(x_arrive,haut_barre),barre, y_arrive)
-    unselect_anim(selected_anneau)
-    selected_anneau=None
+        if can_move:
+            # determine destination
+            pos = bar_list[bar].pos
+            x_arrive = pos[0] - 5
+            y_arrive = pos[1] - bar_list[bar].list.size() * 20 - 10
+
+            # direction
+            x = (x_arrive - selected_ring.pos[0]) / 50
+            y = (top_bar - selected_ring.pos[1]) / 50
+            selected_ring.reset_move()
+            selected_ring.move_up_ring((x, y), (x_arrive, top_bar), bar, y_arrive)
+    unselect_anim(selected_ring)
+    selected_ring = None
 
 
-def select_anim(ann):
-    """animation grossissant la bordure de l'anneau"""
-    toile.itemconfig(ann.body, width=5)
+def select_anim(ring):
+    """Animation that enlarges the border of the ring"""
+    canvas.itemconfig(ring.body, width=5)
 
-def unselect_anim(ann):
-    """animation rétrécissant la bordure de l'anneau"""
-    toile.itemconfig(ann.body, width=1)
+def unselect_anim(ring):
+    """Animation that shrinks the border of the ring"""
+    canvas.itemconfig(ring.body, width=1)
 
- # pression des touches :
+# key press handlers :
 def motion(event):
-    """Fonction qui récupère la position de la souris a chaque fois qu'elle se déplace"""
+    """Function that gets the position of the mouse every time it moves"""
     global mouse_pos
     mouse_pos = (event.x, event.y)
 
-def clic_gauche(event):
-    """Fonction qui s'active lors d'un clique"""
-    global selected_anneau
+def left_click(event):
+    """Function that activates when a click happens"""
+    global selected_ring
 
-    if selected_anneau == None: #click sur un anneau
-        select_anneau()
-    else:#click sur la barre
-        movement_anneau()
+    if selected_ring is None:  # click on a ring
+        select_ring()
+    else:  # click on the bar
+        move_ring()
 
 #---------------------------------------------------------------MAIN------------------------------------------------------------------------------
-nb_anneaux = 4
 
-#global var
-largeur = 600
-hauteur = 400
+num_rings = 4
 
-fenetre = tk.Tk()
-toile = tk.Canvas(fenetre, width = largeur, height = hauteur, bg = "white")
-toile.pack()
+# global variables
+width = 600
+height = 400
 
-#deplacements manuels
-mouse_pos = (0,0)
-selected_anneau = None
-haut_barre=40 #corespond à la hauteur des barres
+window = tk.Tk()
+canvas = tk.Canvas(window, width=width, height=height, bg="white")
+canvas.pack()
 
-#stockage des anneaux sur les barres
-liste_barres = [Barre(1),Barre(2),Barre(3)] #liste de toutes les barres
+# manual movements
+mouse_pos = (0, 0)
+selected_ring = None
+top_bar = 40  # corresponds to the height of the bars
 
+# storage for rings on bars
+bar_list = [Bar(1), Bar(2), Bar(3)]  # list of all bars
 
-#stockage des anneaux
-liste_id_anneaux = [1 for i in range(nb_anneaux)]
-liste_anneaux = [Anneau(i) for i in range(nb_anneaux,0,-1)] #on les ajoutes dans le bon sens
-liste_anneaux.reverse()
+# storage for rings
+ring_ids = [1 for i in range(num_rings)]
+ring_list = [Ring(i) for i in range(num_rings, 0, -1)]  # add them in the correct order
+ring_list.reverse()
 
-#stockage des deplacements
-deplacements_depart = recursion(liste_id_anneaux,File(),3,nb_anneaux, True)
-deplacements = deplacements_depart.copy()
-print(deplacements)
+# storage for movements
+initial_movements = recursion(ring_ids, Queue(), 3, num_rings, True)
+movements = initial_movements.copy()
+print(movements)
 
-#creation des autres visuels
-socle_visuel()
+# create other visuals
+visual_base()
 
-#bouttons
-suivant = tk.Button(fenetre, cursor="arrow", width=20, height=1, text = "NEXT", command = update)
-suivant.pack()
-reset_button = tk.Button(fenetre, cursor="arrow", width=20, height=1, text = "RESET", command = reset)
+# buttons
+next_button = tk.Button(window, cursor="arrow", width=20, height=1, text="NEXT", command=update)
+next_button.pack()
+reset_button = tk.Button(window, cursor="arrow", width=20, height=1, text="RESET", command=reset)
 reset_button.pack()
-boutton_quit = tk.Button(fenetre, cursor="arrow", width=20, height=1, text = "QUIT", command = fenetre.destroy)
-boutton_quit.pack()
-fenetre.bind('<Motion>', motion)
-fenetre.bind('<Button-1>', clic_gauche)
-fenetre.mainloop()
+quit_button = tk.Button(window, cursor="arrow", width=20, height=1, text="QUIT", command=window.destroy)
+quit_button.pack()
+window.bind('<Motion>', motion)
+window.bind('<Button-1>', left_click)
+window.mainloop()
