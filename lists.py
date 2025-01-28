@@ -21,28 +21,18 @@ class Pile:
     def ajouter(self,v):
         """Fonction qui ajoute un maillon avec la nouvelle valeur à la liste"""
         m = Maillon(v)
-        if self.premier == None:
-            self.premier=m
-        else:
-            precedent=self.premier
-            while precedent.suivant!=None:
-                precedent=precedent.suivant
-            precedent.suivant = m
+        n = self.premier
+        self.premier=m
+        self.premier.suivant = n
     
     def enlever(self):
         """Fonction qui enlève l'élément tout en haut"""
         if self.premier != None:
-            v=None
-            precedent=self.premier
-            if precedent.suivant != None:
-                while precedent.suivant.suivant!=None:
-                    precedent=precedent.suivant
-                v = precedent.suivant.valeur
-                precedent.suivant = None
-            else:
-                v=precedent
-                self.premier = None
+            v=self.premier.valeur
+            self.premier = self.premier.suivant
             return v
+        else:
+            return None
 
     def taille(self):
         """Fonction qui renvoie la taille de la liste"""
@@ -60,10 +50,15 @@ class Pile:
         ans=False
         if self.premier != None:
             precedent=self.premier
+            
+            if self.premier == valeur:
+                ans=True
             while precedent.suivant!=None:
+                precedent=precedent.suivant
                 if precedent.valeur == valeur:
                     ans=True
-                precedent=precedent.suivant
+            
+            
         return ans
 
     

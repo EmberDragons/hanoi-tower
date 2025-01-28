@@ -113,7 +113,11 @@ class Anneau:
         toile.coords(self.body,self.pos[0]-self.taille[0],self.pos[1]-self.taille[1],self.pos[0]+self.taille[0],self.pos[1]+self.taille[1])
         liste_barres[self.barre_id].list.enlever() #toujours celui tout en haut
         self.barre_id=0
+        self.reset_move()
         liste_barres[self.barre_id].list.ajouter(self)
+    
+    def reset_move(self):
+        """Fonction qui reset tout movement"""
         if self.func != None:
             toile.after_cancel(self.func)
             self.func=None
@@ -131,6 +135,7 @@ def reset():
 
 def update():
     """Fonction qui est appelé pour update la position des blocs"""
+    ann, barre = deplacements.premier.valeur
     if deplacements.taille() >= 1 and liste_anneaux[deplacements.verifie()-1].bouge == False:
         ann,barre=deplacements.enlever()
         #on recupère les bons ids
@@ -178,6 +183,35 @@ def select_anneau():
                 unselect_anim(selected_anneau)
             selected_anneau = None
 
+def movement_anneau():
+    global selected_anneau
+    un_tier_fenetre=largeur//3
+    barre=(mouse_pos[0]//un_tier_fenetre)
+    peux_deplacer = False
+
+    #on ne peut que deplacer l'anneau si c'est celui en haut de la pile, que la barre ou il va n'est pas la meme que celle ou il se tient, qu'il ne bouge pas et que l'anneau sur la prochaine barre est plus grand que lui
+    if liste_anneaux[deplacements.verifie()-1].bouge == False and barre != selected_anneau.barre_id and liste_barres[selected_anneau.barre_id].list.premier.valeur.nombre == selected_anneau.nombre:
+        if liste_barres[barre].list.premier!=None:
+            if liste_barres[barre].list.premier.valeur.nombre>selected_anneau.nombre:
+                peux_deplacer=True
+        else:
+            peux_deplacer=True
+
+        if peux_deplacer:
+            #determine l'endroit d'arrivée
+            pos=liste_barres[barre].pos
+            x_arrive = pos[0]-5
+            y_arrive = pos[1]-liste_barres[barre].list.taille()*20-10
+            
+            #direction
+            x = (x_arrive-selected_anneau.pos[0])/50
+            y = (haut_barre-selected_anneau.pos[1])/50
+            selected_anneau.reset_move()
+            selected_anneau.movement_haut_anneau((x,y),(x_arrive,haut_barre),barre, y_arrive)
+    unselect_anim(selected_anneau)
+    selected_anneau=None
+
+
 def select_anim(ann):
     """animation grossissant la bordure de l'anneau"""
     toile.itemconfig(ann.body, width=5)
@@ -194,7 +228,12 @@ def motion(event):
 
 def clic_gauche(event):
     """Fonction qui s'active lors d'un clique"""
-    select_anneau()
+    global selected_anneau
+
+    if selected_anneau == None: #click sur un anneau
+        select_anneau()
+    else:#click sur la barre
+        movement_anneau()
 
 #---------------------------------------------------------------MAIN------------------------------------------------------------------------------
 nb_anneaux = 4
@@ -218,7 +257,8 @@ liste_barres = [Barre(1),Barre(2),Barre(3)] #liste de toutes les barres
 
 #stockage des anneaux
 liste_id_anneaux = [1 for i in range(nb_anneaux)]
-liste_anneaux = [Anneau(i) for i in range(1,nb_anneaux+1)]
+liste_anneaux = [Anneau(i) for i in range(nb_anneaux,0,-1)] #on les ajoutes dans le bon sens
+liste_anneaux.reverse()
 
 #stockage des deplacements
 deplacements_depart = recursion(liste_id_anneaux,File(),3,nb_anneaux, True)
